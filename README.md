@@ -1,6 +1,6 @@
 # dsh-shortcut
 
-DeepSeek Harness（dsh web）的 Windows 桌面快捷方式工具：双击智能启动 / 唤起，浏览器打开前终端自动最小化到任务栏，圆角官方鲸鱼图标。纯 PowerShell 实现，零依赖、零收集。
+DeepSeek Harness（dsh web）的 Windows 桌面快捷方式工具：双击智能启动 / 唤起、浏览器打开前终端自动最小化，**崩溃可一键重装救援**。纯 PowerShell 实现，零依赖、零收集。
 
 > 作者：**DaYanQAQ** · License: MIT
 
@@ -10,8 +10,8 @@ DeepSeek Harness（dsh web）的 Windows 桌面快捷方式工具：双击智能
 
 - 🖱️ **一键安装**：双击 `install.bat`，中文交互菜单（选盘、路径校验、缺 Node.js 弹窗引导下载）
 - 🔧 **一键重装救援**：Harness 崩溃 / 启动异常时，一条命令停止服务 → 清空程序缓存 → 自动重启最新版，**不删除任何用户数据**
-- 🚀 **智能启动**：Harness 未运行 → 弹出终端自动启动；已在运行 → **零窗口**把浏览器页面带到前台（浏览器关了则自动重开网页）
-- 🪟 **窗口自动管理**：服务就绪、浏览器打开前，终端自动最小化到任务栏；连续双击不会堆叠窗口
+- 🚀 **智能启动**：未运行 → 弹出终端自动启动；已在运行 → **零窗口**把浏览器页面带到前台（浏览器关了自动重开网页），并把被恢复出来的终端重新收进任务栏
+- 🪟 **窗口自动管理**：服务就绪、浏览器打开前，终端自动最小化；连续双击不堆叠窗口；最大化的浏览器不会被误缩小
 - 🎨 **圆角图标**：品牌蓝（#4D6BFE）圆角方块 + 官方白色鲸鱼，纯 .NET 渲染官方 SVG 为 ICO，零外部依赖
 - 🛡️ **隐私干净**：全明文脚本，零上传、零日志、零收集
 - 🗑️ **干净卸载**：一条命令删除快捷方式与安装目录
@@ -20,14 +20,14 @@ DeepSeek Harness（dsh web）的 Windows 桌面快捷方式工具：双击智能
 
 环境要求：**Windows 10 / 11** + **Node.js**（`npx` 可用）。未安装 Node.js 时，安装器会弹窗引导下载。
 
-**方式一（推荐）**：
+**方式一（推荐）**
 
-1. **下载本项目**：仓库页点绿色 **Code** 按钮 → **Download ZIP**，解压到任意文件夹（或 `git clone https://github.com/DaYanQAQ/DSH-Shortcut.git`）
+1. 仓库页点绿色 **Code** → **Download ZIP**，解压到任意文件夹（或 `git clone https://github.com/DaYanQAQ/DSH-Shortcut.git`）
    > GitHub 网页上的文件列表只是源代码展示，不能在网页上直接运行
-2. **双击解压出来的 `install.bat`** → 自动解除下载锁定并启动中文安装器
+2. 双击解压出来的 `install.bat` → 自动解除下载锁定并启动中文安装器
 3. 按提示选择安装位置（C 盘 / D 盘 / 自定义），完成 ✅
 
-**方式二（手动 / 指定目录）**：
+**方式二（手动 / 指定目录）**
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File ".\install.ps1"                     # 交互式，同 install.bat
@@ -47,7 +47,7 @@ powershell -ExecutionPolicy Bypass -File ".\uninstall.ps1" [-Path "D:\DeepSeek"]
 | 双击时 | 表现 |
 | --- | --- |
 | Harness 未运行 | 终端显示 → 运行 `npx -y @deepseek-ai/dsh web` → 浏览器打开前自动最小化 |
-| Harness 已运行 | 不弹任何窗口，唤起已有浏览器页面（浏览器已关则重开网页） |
+| Harness 已运行 | 不弹任何窗口，唤起已有浏览器页面（浏览器已关则重开网页），并把被恢复出来的终端重新收进任务栏 |
 | 端口 3080 被占用 | 终端显示占用提示与进程名 |
 
 首次运行 `npx` 会自动下载 `@deepseek-ai/dsh`（稍慢，之后很快）。
@@ -64,13 +64,15 @@ Harness 崩溃、启动报错、程序损坏时，运行安装目录下的 `rein
 powershell -ExecutionPolicy Bypass -File "%LOCALAPPDATA%\DeepSeek\reinstall.ps1"
 ```
 
-三步自动完成，**不删除对话记录、API Key 和配置**（这些保存在 `~/.dsh`，与程序文件分开存放）：
+三步自动完成，**任何一步失败都会中止，不做破坏性操作**：
 
 1. 停止运行中的 Harness（按端口持有者精确识别，不误杀其他程序）
-2. 清空 npx 缓存中的程序文件，下次启动自动下载最新版（加 `-Full` 参数可清空整个缓存）
-3. 自动重新启动
+2. 清空 npx 缓存中的程序文件，下次启动自动下载最新版（加 `-Full` 参数清空整个缓存）
+3. 自动重新启动（与双击快捷方式同款流程）
 
-运行时会要求输入 `y` 确认，防误触。
+- 不删除对话记录、API Key 和配置（保存在 `~/.dsh`，与程序文件分开存放）
+- 运行时会要求输入 `y` 确认，防误触
+- 重装后快捷方式照常可用，只是第一次启动需重新下载 dsh（约一两分钟）
 
 ## 项目结构
 
@@ -79,7 +81,7 @@ powershell -ExecutionPolicy Bypass -File "%LOCALAPPDATA%\DeepSeek\reinstall.ps1"
 ├── uninstall.ps1                 # 卸载
 ├── dispatcher.ps1                # 隐藏调度器：已在运行零窗口唤起；未运行拉起可见终端
 ├── start-harness.ps1             # 可见启动器：运行 npx、轮询端口、浏览器打开前自动最小化
-├── reinstall.ps1                 # 一键重装救援：停止服务 → 清空 npx 缓存 → 自动重启
+├── reinstall.ps1                 # 一键重装救援：停止服务 → 清空程序缓存 → 自动重启
 ├── render-logo.ps1               # 图标渲染：官方 SVG → 圆角 PNG / ICO
 ├── assets/                       # 官方 Logo 矢量源与生成的圆角图标
 ├── LICENSE
@@ -94,7 +96,8 @@ powershell -ExecutionPolicy Bypass -File "%LOCALAPPDATA%\DeepSeek\reinstall.ps1"
 | 提示缺少 Node.js | 弹窗点"是"打开官网下载，装完重试 |
 | 桌面图标未变圆角 | 右键桌面 → 刷新；仍无效则重启资源管理器 |
 | 双击快捷方式无反应 | 确认 Node.js 已装、Harness 终端在运行；端口占用时终端会给出提示 |
-| Harness 崩溃 / 启动异常 | 运行安装目录（`%LOCALAPPDATA%\DeepSeek`）下的 `reinstall.ps1`（右键 → 使用 PowerShell 运行）：停止服务 → 清空程序缓存 → 自动重下最新版并重启（需输入 y 确认，不删任何用户数据） |
+| Harness 崩溃 / 启动异常 | 运行安装目录（`%LOCALAPPDATA%\DeepSeek`）下的 `reinstall.ps1`（右键 → 使用 PowerShell 运行） |
+| 快捷方式本身损坏 | 重新运行 `install.bat`（或 `install.ps1`）即可修复 |
 
 ## 致谢
 
