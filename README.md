@@ -23,7 +23,6 @@ DeepSeek Harness（dsh web）的 Windows 桌面快捷方式工具：双击智能
 **方式一（推荐）**
 
 1. 仓库页点绿色 **Code** → **Download ZIP**，解压到任意文件夹（或 `git clone https://github.com/DaYanQAQ/DSH-Shortcut.git`）
-   > GitHub 网页上的文件列表只是源代码展示，不能在网页上直接运行
 2. 双击解压出来的 `install.bat` → 自动解除下载锁定并启动中文安装器
 3. 按提示选择安装位置（C 盘 / D 盘 / 自定义），完成 ✅
 
@@ -58,11 +57,20 @@ powershell -ExecutionPolicy Bypass -File ".\uninstall.ps1" [-Path "D:\DeepSeek"]
 
 ## 一键重装（崩溃救援）
 
-Harness 崩溃、启动报错、程序损坏时，运行安装目录下的 `reinstall.ps1`：
+Harness 崩溃、启动报错、程序损坏时使用。
 
-```powershell
-powershell -ExecutionPolicy Bypass -File "%LOCALAPPDATA%\DeepSeek\reinstall.ps1"
-```
+**最简方式（推荐）**：
+
+1. 按 **`Win + R`** 打开"运行"窗口
+2. 粘贴下面这行，回车：
+
+   ```
+   powershell -NoExit -ExecutionPolicy Bypass -File "%LOCALAPPDATA%\DeepSeek\reinstall.ps1"
+   ```
+
+3. 弹出的窗口会询问"确认执行重装？"——输入 **`y`** 回车开始，其他任意键取消
+
+**备选方式**：打开文件夹 `%LOCALAPPDATA%\DeepSeek`（复制到文件管理器地址栏回车），右键 `reinstall` → **使用 PowerShell 运行**，同样输入 `y` 确认。
 
 三步自动完成，**任何一步失败都会中止，不做破坏性操作**：
 
@@ -70,8 +78,10 @@ powershell -ExecutionPolicy Bypass -File "%LOCALAPPDATA%\DeepSeek\reinstall.ps1"
 2. 清空 npx 缓存中的程序文件，下次启动自动下载最新版（加 `-Full` 参数清空整个缓存）
 3. 自动重新启动（与双击快捷方式同款流程）
 
+放心事项：
+
 - 不删除对话记录、API Key 和配置（保存在 `~/.dsh`，与程序文件分开存放）
-- 运行时会要求输入 `y` 确认，防误触
+- **已安装的 dsh 插件（如余额插件）不受影响**——插件装在配置目录里，重装只清理程序缓存
 - 重装后快捷方式照常可用，只是第一次启动需重新下载 dsh（约一两分钟）
 
 ## 项目结构
