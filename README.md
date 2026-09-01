@@ -9,6 +9,7 @@ DeepSeek Harness（dsh web）的 Windows 桌面快捷方式工具：双击智能
 ## 功能
 
 - 🖱️ **一键安装**：双击 `install.bat`，中文交互菜单（选盘、路径校验、缺 Node.js 弹窗引导下载）
+- 🔧 **一键重装救援**：Harness 崩溃 / 启动异常时，一条命令停止服务 → 清空程序缓存 → 自动重启最新版，**不删除任何用户数据**
 - 🚀 **智能启动**：Harness 未运行 → 弹出终端自动启动；已在运行 → **零窗口**把浏览器页面带到前台（浏览器关了则自动重开网页）
 - 🪟 **窗口自动管理**：服务就绪、浏览器打开前，终端自动最小化到任务栏；连续双击不会堆叠窗口
 - 🎨 **圆角图标**：品牌蓝（#4D6BFE）圆角方块 + 官方白色鲸鱼，纯 .NET 渲染官方 SVG 为 ICO，零外部依赖
@@ -54,6 +55,22 @@ powershell -ExecutionPolicy Bypass -File ".\uninstall.ps1" [-Path "D:\DeepSeek"]
 > 本工具只负责"启动与窗口体验"，不含 AI 能力。与 AI 聊天需自行在
 > [platform.deepseek.com](https://platform.deepseek.com) 申请 API Key 并在 Harness 中配置；
 > 没有 Key 时程序照常启动，只是 AI 不回复。
+
+## 一键重装（崩溃救援）
+
+Harness 崩溃、启动报错、程序损坏时，运行安装目录下的 `reinstall.ps1`：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File "%LOCALAPPDATA%\DeepSeek\reinstall.ps1"
+```
+
+三步自动完成，**不删除对话记录、API Key 和配置**（这些保存在 `~/.dsh`，与程序文件分开存放）：
+
+1. 停止运行中的 Harness（按端口持有者精确识别，不误杀其他程序）
+2. 清空 npx 缓存中的程序文件，下次启动自动下载最新版（加 `-Full` 参数可清空整个缓存）
+3. 自动重新启动
+
+运行时会要求输入 `y` 确认，防误触。
 
 ## 项目结构
 
