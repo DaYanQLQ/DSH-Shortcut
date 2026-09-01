@@ -16,6 +16,7 @@ public static class WinMinD {
     [DllImport("user32.dll")] static extern bool EnumWindows(EnumProc cb, IntPtr lParam);
     [DllImport("user32.dll")] static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
     [DllImport("user32.dll")] static extern bool SetForegroundWindow(IntPtr hWnd);
+    [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint pid);
     [DllImport("user32.dll", CharSet=CharSet.Unicode)] static extern int GetWindowText(IntPtr hWnd, StringBuilder sb, int max);
     [DllImport("user32.dll", CharSet=CharSet.Unicode)] static extern int GetClassName(IntPtr hWnd, StringBuilder sb, int max);
     delegate bool EnumProc(IntPtr hWnd, IntPtr lParam);
@@ -43,6 +44,23 @@ public static class WinMinD {
         keybd_event(0x12, 0, 0, UIntPtr.Zero);            // 按下 ALT（借用前台权限）
         SetForegroundWindow(h);
         keybd_event(0x12, 0, 2, UIntPtr.Zero);            // 松开 ALT
+    }
+    public static bool Min(IntPtr h) { return ShowWindow(h, 6); }
+    public static string ListConsoleWindows() {
+        var sb = new StringBuilder();
+        EnumWindows((h, l) => {
+            var c = new StringBuilder(256);
+            GetClassName(h, c, 256);
+            string cls = c.ToString();
+            if (cls != "ConsoleWindowClass" && cls != "CASCADIA_HOSTING_WINDOW_CLASS") return true;
+            var t = new StringBuilder(256);
+            GetWindowText(h, t, 256);
+            uint pid;
+            GetWindowThreadProcessId(h, out pid);
+            sb.Append(h + "|" + pid + "|" + t + "\n");
+            return true;
+        }, IntPtr.Zero);
+        return sb.ToString();
     }
 }
 "@
@@ -76,6 +94,20 @@ function Test-HarnessOnPort {
     }
 }
 
+# 判断某进程（或它的最近几代祖先）是否属于 Harness 启动器链：
+# 沿进程树向上查找命令行含 start-harness / npx dsh 的进程
+function Test-HarnessConsoleProcess {
+    param([int]$Pid)
+    $cur = $Pid
+    for ($i = 0; $i -lt 4 -and $cur -gt 0; $i++) {
+        $proc = Get-CimInstance Win32_Process -Filter ("ProcessId=" + $cur) -ErrorAction SilentlyContinue
+        if (-not $proc) { return $false }
+        if ($proc.CommandLine -match 'start-harness\.ps1|npx -y @deepseek-ai/dsh') { return $true }
+        $cur = $proc.ParentProcessId
+    }
+    return $false
+}
+
 $port = 3080   # DSH Web GUI 默认端口
 $launcher = Join-Path $PSScriptRoot 'start-harness.ps1'
 
@@ -97,6 +129,18 @@ if (Test-PortOpen -P $port) {
         } else {
             Start-Process 'http://127.0.0.1:3080'
             Start-Sleep -Milliseconds 800
+        }
+        # 把 Harness 的终端窗口收回任务栏（用户可能之前手动把它恢复到了桌面）
+        $consoles = ([WinMinD]::ListConsoleWindows() -split "`n") | Where-Object { $_ -ne '' }
+        foreach ($line in $consoles) {
+            $parts = $line -split '\|', 3
+            if ($parts.Count -lt 3) { continue }
+            $hwnd  = [IntPtr][long]$parts[0]
+            $wpid  = [int]$parts[1]
+            $title = $parts[2]
+            if (($title -match 'DeepSeek Harness') -or (Test-HarnessConsoleProcess -Pid $wpid)) {
+                [WinMinD]::Min($hwnd) | Out-Null
+            }
         }
         exit
     } else {
