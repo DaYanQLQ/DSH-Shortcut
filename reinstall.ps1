@@ -49,25 +49,30 @@ if ($confirm -ne 'y' -and $confirm -ne 'Y') {
 }
 Write-Host ''
 
-# ① 停止运行中的 Harness
+# ① 停止运行中的 Harness（任何一步失败都中止：不碰缓存、不重启）
 if (Test-PortOpen -P $port) {
-    if (Test-HarnessOnPort -P $port) {
-        try {
-            $conn = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction Stop | Select-Object -First 1
-            $owner = [int]$conn.OwningProcess
-            Write-Host ('[1/3] 正在停止 Harness（PID ' + $owner + '）...') -ForegroundColor Yellow
-            taskkill /PID $owner /T /F | Out-Null
-            Start-Sleep -Seconds 2
-            if (-not (Test-PortOpen -P $port)) { Write-Host '      已停止 ✓' -ForegroundColor Green }
-            else { Write-Host '      端口仍被占用，请手动结束后重试' -ForegroundColor Red }
-        } catch {
-            Write-Host ('      停止失败: ' + $_.Exception.Message) -ForegroundColor Red
-        }
-    } else {
+    if (-not (Test-HarnessOnPort -P $port)) {
         Write-Host '[1/3] 端口 3080 被其他程序占用，为安全起见不停止它。' -ForegroundColor Red
         Write-Host '      请先关闭占用程序，再重新运行本脚本。'
         return
     }
+    $conn = $null
+    try {
+        $conn = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction Stop | Select-Object -First 1
+    } catch { $conn = $null }
+    if (-not $conn) {
+        Write-Host '[1/3] 无法确定 Harness 进程，未做任何改动。请手动停止后重试。' -ForegroundColor Red
+        return
+    }
+    $owner = [int]$conn.OwningProcess
+    Write-Host ('[1/3] 正在停止 Harness（PID ' + $owner + '）...') -ForegroundColor Yellow
+    taskkill /PID $owner /T /F | Out-Null
+    Start-Sleep -Seconds 2
+    if (Test-PortOpen -P $port) {
+        Write-Host '      停止未生效（端口仍被占用），已中止：未清缓存、未重启。' -ForegroundColor Red
+        return
+    }
+    Write-Host '      已停止 ✓' -ForegroundColor Green
 } else {
     Write-Host '[1/3] Harness 未在运行，跳过停止。' -ForegroundColor DarkGray
 }
@@ -105,3 +110,4 @@ if (Test-Path -LiteralPath $vbs) {
 
 Write-Host ''
 Write-Host '重装完成。首次启动需重新下载 dsh，可能需要一两分钟。' -ForegroundColor Cyan
+Write-Host '旧的终端窗口（如有）会停留在提示符状态，直接关闭即可。' -ForegroundColor DarkGray
