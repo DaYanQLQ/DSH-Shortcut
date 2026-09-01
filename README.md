@@ -17,6 +17,11 @@ DeepSeek Harness（dsh web）的 Windows 桌面快捷方式工具：双击智能
 
 环境要求：**Windows 10 / 11** + **Node.js**（`npx` 可用）。未安装 Node.js 时，安装器会弹窗引导下载。
 
+1. **下载本项目**：仓库页点绿色 **Code** 按钮 → **Download ZIP**，解压到任意文件夹（或 `git clone https://github.com/DaYanQAQ/DSH-Shortcut.git`）
+   > GitHub 网页上的文件列表只是源代码展示，不能在网页上直接运行
+2. **双击解压出来的 `install.bat`**（自动解除下载锁定并启动中文安装器）
+3. 按提示选择安装位置（C 盘 / D 盘 / 自定义），完成 ✅
+
 ```bat
 :: 方式一（推荐）：双击 install.bat，自动解除下载锁定并启动中文安装器
 ```
