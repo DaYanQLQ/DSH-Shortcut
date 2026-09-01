@@ -20,6 +20,7 @@ public static class WinMin3 {
     [DllImport("kernel32.dll")] public static extern IntPtr GetConsoleWindow();
     [DllImport("user32.dll")] static extern bool EnumWindows(EnumProc cb, IntPtr lParam);
     [DllImport("user32.dll")] static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+    [DllImport("user32.dll")] static extern bool IsIconic(IntPtr hWnd);
     [DllImport("user32.dll")] static extern bool GetWindowRect(IntPtr hWnd, out RECT rect);
     [DllImport("user32.dll", CharSet=CharSet.Unicode)] static extern int GetWindowText(IntPtr hWnd, StringBuilder sb, int max);
     [DllImport("user32.dll", CharSet=CharSet.Unicode)] static extern int GetClassName(IntPtr hWnd, StringBuilder sb, int max);
@@ -152,7 +153,7 @@ if ($portAlreadyOpen) {
         $bw = [WinMin3]::FindBrowserWindow('DeepSeek Harness')
         if ($bw -ne [IntPtr]::Zero) {
             Write-Host 'Harness 已在运行，正在切换到浏览器窗口（不新开窗口）...' -ForegroundColor Green
-            [WinMin3]::Restore($bw) | Out-Null
+            if ([WinMin3]::IsIconic($bw)) { [WinMin3]::Restore($bw) | Out-Null }   # 仅最小化时恢复，避免把最大化窗口缩小
             [WinMin3]::Foreground($bw) | Out-Null
             Start-Sleep -Seconds 1
         } else {

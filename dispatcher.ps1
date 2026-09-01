@@ -17,6 +17,7 @@ public static class WinMinD {
     [DllImport("user32.dll")] static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
     [DllImport("user32.dll")] static extern bool SetForegroundWindow(IntPtr hWnd);
     [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint pid);
+    [DllImport("user32.dll")] static extern bool IsIconic(IntPtr hWnd);
     [DllImport("user32.dll", CharSet=CharSet.Unicode)] static extern int GetWindowText(IntPtr hWnd, StringBuilder sb, int max);
     [DllImport("user32.dll", CharSet=CharSet.Unicode)] static extern int GetClassName(IntPtr hWnd, StringBuilder sb, int max);
     delegate bool EnumProc(IntPtr hWnd, IntPtr lParam);
@@ -40,7 +41,7 @@ public static class WinMinD {
     public static bool Foreground(IntPtr h) { return SetForegroundWindow(h); }
     [DllImport("user32.dll")] static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
     public static void ForceForeground(IntPtr h) {
-        ShowWindow(h, 9);
+        if (IsIconic(h)) { ShowWindow(h, 9); }            // 仅当最小化时才恢复，避免把最大化窗口缩小
         keybd_event(0x12, 0, 0, UIntPtr.Zero);            // 按下 ALT（借用前台权限）
         SetForegroundWindow(h);
         keybd_event(0x12, 0, 2, UIntPtr.Zero);            // 松开 ALT
