@@ -74,7 +74,6 @@ powershell -ExecutionPolicy Bypass -File ".\uninstall.ps1" [-Path "D:\DeepSeek"]
 ## 致谢
 
 - 图标矢量取自 [@deepseek-ai/dsh](https://www.npmjs.com/package/@deepseek-ai/dsh) 官方 Web 前端（favicon.svg），版权归 DeepSeek 所有，仅本地非商业使用
-- 感谢 [awesome-dsh-plugin](https://github.com/wgd753/awesome-dsh-plugin) 维护 dsh 生态目录
 
 ## 相关项目
 
