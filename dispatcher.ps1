@@ -97,12 +97,12 @@ function Test-HarnessOnPort {
 # 判断某进程（或它的最近几代祖先）是否属于 Harness 启动器链：
 # 沿进程树向上查找命令行含 start-harness / npx dsh 的进程
 function Test-HarnessConsoleProcess {
-    param([int]$Pid)
-    $cur = $Pid
+    param([int]$ProcId)
+    $cur = $ProcId
     for ($i = 0; $i -lt 4 -and $cur -gt 0; $i++) {
         $proc = Get-CimInstance Win32_Process -Filter ("ProcessId=" + $cur) -ErrorAction SilentlyContinue
         if (-not $proc) { return $false }
-        if ($proc.CommandLine -match 'start-harness\.ps1|npx -y @deepseek-ai/dsh') { return $true }
+        if ($proc.CommandLine -match 'start-harness\.ps1|npx -y @deepseek-ai/dsh|@deepseek-ai') { return $true }
         $cur = $proc.ParentProcessId
     }
     return $false
@@ -131,6 +131,12 @@ if (Test-PortOpen -P $port) {
             Start-Sleep -Milliseconds 800
         }
         # 把 Harness 的终端窗口收回任务栏（用户可能之前手动把它恢复到了桌面）
+        # 识别方式：标题含 DeepSeek Harness / 窗口进程=端口持有者(Harness本体) / 进程链含 dsh 启动器
+        $portOwner = 0
+        try {
+            $conn = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction Stop | Select-Object -First 1
+            if ($conn) { $portOwner = [int]$conn.OwningProcess }
+        } catch {}
         $consoles = ([WinMinD]::ListConsoleWindows() -split "`n") | Where-Object { $_ -ne '' }
         foreach ($line in $consoles) {
             $parts = $line -split '\|', 3
@@ -138,7 +144,9 @@ if (Test-PortOpen -P $port) {
             $hwnd  = [IntPtr][long]$parts[0]
             $wpid  = [int]$parts[1]
             $title = $parts[2]
-            if (($title -match 'DeepSeek Harness') -or (Test-HarnessConsoleProcess -Pid $wpid)) {
+            if (($title -match 'DeepSeek Harness') -or
+                ($portOwner -gt 0 -and $wpid -eq $portOwner) -or
+                (Test-HarnessConsoleProcess -ProcId $wpid)) {
                 [WinMinD]::Min($hwnd) | Out-Null
             }
         }
