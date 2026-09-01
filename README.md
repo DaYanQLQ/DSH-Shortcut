@@ -4,6 +4,8 @@ DeepSeek Harness（dsh web）的 Windows 桌面快捷方式工具：双击智能
 
 > 作者：**DaYanQAQ** · License: MIT
 
+<p align="center"><img src="assets/deepseek-logo-256.png" width="128" alt="DeepSeek 圆角图标"></p>
+
 ## 功能
 
 - 🖱️ **一键安装**：双击 `install.bat`，中文交互菜单（选盘、路径校验、缺 Node.js 弹窗引导下载）
