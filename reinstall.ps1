@@ -39,6 +39,16 @@ Write-Host '  （用于崩溃、启动异常等情况）' -ForegroundColor DarkG
 Write-Host '============================================' -ForegroundColor Cyan
 Write-Host ''
 
+# 防误触确认：输入 y 才继续
+Write-Host '注意：重装只替换程序文件，不会删除对话记录、API Key 和配置。' -ForegroundColor DarkGray
+$confirm = Read-Host '确认执行重装？输入 y 回车（其他任意键取消）'
+if ($confirm -ne 'y' -and $confirm -ne 'Y') {
+    Write-Host ''
+    Write-Host '已取消，未做任何改动。' -ForegroundColor Green
+    return
+}
+Write-Host ''
+
 # ① 停止运行中的 Harness
 if (Test-PortOpen -P $port) {
     if (Test-HarnessOnPort -P $port) {

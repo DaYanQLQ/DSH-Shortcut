@@ -159,17 +159,6 @@ $sc.IconLocation = "$icoDst,0"
 $sc.Description  = 'DeepSeek Harness - 智能启动：已在运行时不弹窗口，直接唤起浏览器'
 $sc.Save()
 
-# 3.5 创建"一键重装"桌面快捷方式（崩溃救援用）
-$reLnkPath = Join-Path $desktop 'DeepSeek Harness 重装.lnk'
-$rc = $ws.CreateShortcut($reLnkPath)
-$rc.TargetPath = Join-Path $env:SystemRoot 'System32\conhost.exe'
-$rc.Arguments  = ('powershell.exe -NoExit -NoLogo -ExecutionPolicy Bypass -File "' + $reinstallDst + '"')
-$rc.WorkingDirectory = $iconDir
-$rc.WindowStyle = 1
-$rc.IconLocation = "$icoDst,0"
-$rc.Description  = 'DeepSeek Harness 一键重装 - 崩溃/异常救援'
-$rc.Save()
-
 # 4. 刷新 Windows 图标缓存，让圆角图标立即生效
 Add-Type -TypeDefinition @"
 using System;

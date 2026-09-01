@@ -77,7 +77,7 @@ powershell -ExecutionPolicy Bypass -File ".\uninstall.ps1" [-Path "D:\DeepSeek"]
 | 提示缺少 Node.js | 弹窗点"是"打开官网下载，装完重试 |
 | 桌面图标未变圆角 | 右键桌面 → 刷新；仍无效则重启资源管理器 |
 | 双击快捷方式无反应 | 确认 Node.js 已装、Harness 终端在运行；端口占用时终端会给出提示 |
-| Harness 崩溃 / 启动异常 | 双击桌面 **"DeepSeek Harness 重装"**：停止服务 → 清空程序缓存 → 自动重下最新版并重启 |
+| Harness 崩溃 / 启动异常 | 运行安装目录（`%LOCALAPPDATA%\DeepSeek`）下的 `reinstall.ps1`（右键 → 使用 PowerShell 运行）：停止服务 → 清空程序缓存 → 自动重下最新版并重启（需输入 y 确认，不删任何用户数据） |
 
 ## 致谢
 
