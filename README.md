@@ -62,6 +62,7 @@ powershell -ExecutionPolicy Bypass -File ".\uninstall.ps1" [-Path "D:\DeepSeek"]
 ├── uninstall.ps1                 # 卸载
 ├── dispatcher.ps1                # 隐藏调度器：已在运行零窗口唤起；未运行拉起可见终端
 ├── start-harness.ps1             # 可见启动器：运行 npx、轮询端口、浏览器打开前自动最小化
+├── reinstall.ps1                 # 一键重装救援：停止服务 → 清空 npx 缓存 → 自动重启
 ├── render-logo.ps1               # 图标渲染：官方 SVG → 圆角 PNG / ICO
 ├── assets/                       # 官方 Logo 矢量源与生成的圆角图标
 ├── LICENSE
@@ -76,6 +77,7 @@ powershell -ExecutionPolicy Bypass -File ".\uninstall.ps1" [-Path "D:\DeepSeek"]
 | 提示缺少 Node.js | 弹窗点"是"打开官网下载，装完重试 |
 | 桌面图标未变圆角 | 右键桌面 → 刷新；仍无效则重启资源管理器 |
 | 双击快捷方式无反应 | 确认 Node.js 已装、Harness 终端在运行；端口占用时终端会给出提示 |
+| Harness 崩溃 / 启动异常 | 双击桌面 **"DeepSeek Harness 重装"**：停止服务 → 清空程序缓存 → 自动重下最新版并重启 |
 
 ## 致谢
 

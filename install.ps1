@@ -126,6 +126,13 @@ if (Test-Path -LiteralPath $dispatcherSrc) {
 } else {
     throw "缺少调度器脚本: $dispatcherSrc"
 }
+$reinstallSrc = Join-Path $root 'reinstall.ps1'
+$reinstallDst = Join-Path $iconDir 'reinstall.ps1'
+if (Test-Path -LiteralPath $reinstallSrc) {
+    Copy-Item -LiteralPath $reinstallSrc -Destination $reinstallDst -Force
+} else {
+    throw "缺少重装脚本: $reinstallSrc"
+}
 # 无窗口入口 dispatcher.vbs 按实际安装路径生成（UTF-16 保存，兼容任意英文路径）
 $vbsDst = Join-Path $iconDir 'dispatcher.vbs'
 $vbsContent = @"
@@ -151,6 +158,17 @@ $sc.WindowStyle = 1                     # wscript 无窗口，此值无关紧要
 $sc.IconLocation = "$icoDst,0"
 $sc.Description  = 'DeepSeek Harness - 智能启动：已在运行时不弹窗口，直接唤起浏览器'
 $sc.Save()
+
+# 3.5 创建"一键重装"桌面快捷方式（崩溃救援用）
+$reLnkPath = Join-Path $desktop 'DeepSeek Harness 重装.lnk'
+$rc = $ws.CreateShortcut($reLnkPath)
+$rc.TargetPath = Join-Path $env:SystemRoot 'System32\conhost.exe'
+$rc.Arguments  = ('powershell.exe -NoExit -NoLogo -ExecutionPolicy Bypass -File "' + $reinstallDst + '"')
+$rc.WorkingDirectory = $iconDir
+$rc.WindowStyle = 1
+$rc.IconLocation = "$icoDst,0"
+$rc.Description  = 'DeepSeek Harness 一键重装 - 崩溃/异常救援'
+$rc.Save()
 
 # 4. 刷新 Windows 图标缓存，让圆角图标立即生效
 Add-Type -TypeDefinition @"

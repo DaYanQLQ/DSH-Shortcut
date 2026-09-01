@@ -9,12 +9,12 @@ $ErrorActionPreference = 'Stop'
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 $desktop = [Environment]::GetFolderPath('Desktop')
-$lnkPath = Join-Path $desktop 'DeepSeek Harness.lnk'
-if (Test-Path -LiteralPath $lnkPath) {
-    Remove-Item -LiteralPath $lnkPath -Force
-    Write-Host ('已删除快捷方式: ' + $lnkPath)
-} else {
-    Write-Host '未找到快捷方式，可能已经卸载。'
+foreach ($name in 'DeepSeek Harness.lnk', 'DeepSeek Harness 重装.lnk') {
+    $lnkPath = Join-Path $desktop $name
+    if (Test-Path -LiteralPath $lnkPath) {
+        Remove-Item -LiteralPath $lnkPath -Force
+        Write-Host ('已删除快捷方式: ' + $lnkPath)
+    }
 }
 
 $iconDir = if ($Path -ne '') { [System.IO.Path]::GetFullPath($Path.TrimEnd('\')) } else { Join-Path $env:LOCALAPPDATA 'DeepSeek' }
